@@ -1,13 +1,8 @@
 import { Request, Response } from 'express';
 import { SiteService } from '../services/site_service';
+import { isValidId, asString } from '../utils/request_helpers';
 
 const siteService = new SiteService();
-
-// A MongoDB ObjectId is exactly 24 hex characters
-const isValidId = (id: string) => /^[0-9a-fA-F]{24}$/.test(id);
-
-// Query values can be arrays or objects in Express, so only accept plain strings
-const asString = (value: unknown) => (typeof value === 'string' ? value : undefined);
 
 // MongoDB error code 11000 means a unique index was violated (duplicate name + country)
 const isDuplicateKeyError = (error: unknown) =>
@@ -224,6 +219,8 @@ export class SiteController {
      *         description: Invalid id format
      *       404:
      *         description: Site not found
+     *       409:
+     *         description: Site still has dives logged at it
      */
     deleteSite = async (req: Request<{ id: string }>, res: Response) => {
         const { id } = req.params;

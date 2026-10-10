@@ -1,5 +1,7 @@
 import { SortOrder } from 'mongoose';
 import { SiteModel, ISite } from '../models/site_model';
+import { DiveModel } from '../models/dive_model';
+import { escapeRegex } from '../utils/request_helpers';
 
 // Query parameters the client can send to GET /sites
 export interface SiteQuery {
@@ -11,9 +13,6 @@ export interface SiteQuery {
 
 // Only these fields can be used for sorting
 const SORTABLE_FIELDS = ['name', 'country', 'maxDepth'];
-
-// Escapes characters like . or * so user input is treated as plain text in a regex
-const escapeRegex = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 export class SiteService {
     async getAllSites(query: SiteQuery) {
