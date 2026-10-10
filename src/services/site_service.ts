@@ -52,4 +52,9 @@ export class SiteService {
     async deleteSite(id: string) {
         return SiteModel.findByIdAndDelete(id);
     }
+
+    // True if at least one dive is logged at this site
+    async hasDives(id: string) {
+        return (await DiveModel.exists({ site: id })) !== null;
+    }
 }

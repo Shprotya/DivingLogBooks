@@ -229,6 +229,10 @@ export class SiteController {
             return;
         }
         try {
+            if (await siteService.hasDives(id)) {
+                res.status(409).json({ message: 'This site has dives logged at it. Delete those dives first.' });
+                return;
+            }
             const site = await siteService.deleteSite(id);
             if (!site) {
                 res.status(404).json({ message: `Site with id ${id} not found` });
