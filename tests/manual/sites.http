@@ -16,6 +16,91 @@ Content-Type: application/json
     "difficulty": "intermediate"
 }
 
+### Ireland - wall, advanced
+POST {{baseUrl}}/sites
+Content-Type: application/json
+
+{
+    "name": "Lough Hyne",
+    "country": "Ireland",
+    "maxDepth": 45,
+    "siteType": "wall",
+    "difficulty": "advanced"
+}
+
+### Ireland - wall, advanced
+POST {{baseUrl}}/sites
+Content-Type: application/json
+
+{
+    "name": "Skellig Michael",
+    "country": "Ireland",
+    "maxDepth": 40,
+    "siteType": "wall",
+    "difficulty": "advanced"
+}
+
+### Ireland - reef, beginner
+POST {{baseUrl}}/sites
+Content-Type: application/json
+
+{
+    "name": "Kilkee Bay",
+    "country": "Ireland",
+    "maxDepth": 20,
+    "siteType": "reef",
+    "difficulty": "beginner"
+}
+
+### Malta - wreck, intermediate
+POST {{baseUrl}}/sites
+Content-Type: application/json
+
+{
+    "name": "Um El Faroud",
+    "country": "Malta",
+    "maxDepth": 36,
+    "siteType": "wreck",
+    "difficulty": "intermediate"
+}
+
+### Malta - cave, beginner
+POST {{baseUrl}}/sites
+Content-Type: application/json
+
+{
+    "name": "Santa Maria Caves",
+    "country": "Malta",
+    "maxDepth": 12,
+    "siteType": "cave",
+    "difficulty": "beginner"
+}
+
+### Egypt - wreck, advanced
+POST {{baseUrl}}/sites
+Content-Type: application/json
+
+{
+    "name": "SS Thistlegorm",
+    "country": "Egypt",
+    "maxDepth": 30,
+    "siteType": "wreck",
+    "difficulty": "advanced"
+}
+
+### Egypt - reef, intermediate
+POST {{baseUrl}}/sites
+Content-Type: application/json
+
+{
+    "name": "Ras Mohammed",
+    "country": "Egypt",
+    "maxDepth": 40,
+    "siteType": "reef",
+    "difficulty": "intermediate"
+}
+
+
 ### Save the id of the site just created, used by the requests below
 @siteId = {{createSite.response.body._id}}
 
