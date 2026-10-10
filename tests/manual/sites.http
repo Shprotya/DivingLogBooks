@@ -1,0 +1,139 @@
+@baseUrl = http://localhost:5000/logbook
+@missingId = 665000000000000000000000
+
+### CREATE (POST)
+
+### POST - valid site (201 Created)
+# @name createSite
+POST {{baseUrl}}/sites
+Content-Type: application/json
+
+{
+    "name": "Test Wreck",
+    "country": "Ireland",
+    "maxDepth": 30,
+    "siteType": "wreck",
+    "difficulty": "intermediate"
+}
+
+### Save the id of the site just created, used by the requests below
+@siteId = {{createSite.response.body._id}}
+
+### POST - fails validation: missing fields (400)
+POST {{baseUrl}}/sites
+Content-Type: application/json
+
+{
+    "name": "Incomplete Site"
+}
+
+### POST - fails validation: depth too deep and invalid enum values (400)
+POST {{baseUrl}}/sites
+Content-Type: application/json
+
+{
+    "name": "Impossible Site",
+    "country": "Ireland",
+    "maxDepth": 200,
+    "siteType": "beach",
+    "difficulty": "expert"
+}
+
+### POST - fails validation: name too short (400)
+POST {{baseUrl}}/sites
+Content-Type: application/json
+
+{
+    "name": "A",
+    "country": "Ireland",
+    "maxDepth": 10,
+    "siteType": "reef",
+    "difficulty": "beginner"
+}
+
+### POST - duplicate name in the same country (409 Conflict)
+POST {{baseUrl}}/sites
+Content-Type: application/json
+
+{
+    "name": "Test Wreck",
+    "country": "Ireland",
+    "maxDepth": 25,
+    "siteType": "wreck",
+    "difficulty": "advanced"
+}
+
+### READ (GET)
+
+### GET - all sites (200)
+GET {{baseUrl}}/sites
+
+### GET - filter by site type (200)
+GET {{baseUrl}}/sites?siteType=wreck
+
+### GET - filter by type and difficulty combined (200)
+GET {{baseUrl}}/sites?siteType=wreck&difficulty=intermediate
+
+### GET - filter by country, case-insensitive (200)
+GET {{baseUrl}}/sites?country=ireland
+
+### GET - sort by depth, deepest first (200)
+GET {{baseUrl}}/sites?sort=-maxDepth
+
+### GET - one site that exists (200)
+GET {{baseUrl}}/sites/{{siteId}}
+
+### GET - one site that doesn't exist (404)
+GET {{baseUrl}}/sites/{{missingId}}
+
+### GET - invalid id format (400)
+GET {{baseUrl}}/sites/abc
+
+### UPDATE (PUT)
+
+### PUT - valid update (200)
+PUT {{baseUrl}}/sites/{{siteId}}
+Content-Type: application/json
+
+{
+    "name": "Test Wreck",
+    "country": "Ireland",
+    "maxDepth": 32,
+    "siteType": "wreck",
+    "difficulty": "advanced"
+}
+
+### PUT - site not found (404)
+PUT {{baseUrl}}/sites/{{missingId}}
+Content-Type: application/json
+
+{
+    "name": "Ghost Site",
+    "country": "Ireland",
+    "maxDepth": 20,
+    "siteType": "reef",
+    "difficulty": "beginner"
+}
+
+### PUT - fails validation (400)
+PUT {{baseUrl}}/sites/{{siteId}}
+Content-Type: application/json
+
+{
+    "name": "Test Wreck",
+    "country": "Ireland",
+    "maxDepth": -5,
+    "siteType": "wreck",
+    "difficulty": "advanced"
+}
+
+### DELETE
+
+### DELETE - site that exists (204)
+DELETE {{baseUrl}}/sites/{{siteId}}
+
+### DELETE - same site again, now gone (404)
+DELETE {{baseUrl}}/sites/{{siteId}}
+
+### DELETE - invalid id format (400)
+DELETE {{baseUrl}}/sites/abc
