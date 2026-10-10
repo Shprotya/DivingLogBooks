@@ -12,4 +12,4 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.get("/ping", (_req: Request, res: Response) => {
     res.json({ message: "Dive logbook API is running" });
-});
+}); 
