@@ -1,6 +1,7 @@
 import { Schema, model, Types } from 'mongoose';
 import { z } from 'zod';
 import { isValidId } from '../utils/request_helpers';
+import { SiteModel } from './site_model';
 
 /**
  * @openapi
@@ -114,7 +115,29 @@ export const createDiveSchemaZod = z.object({
     rating: z.number().int().min(1).max(5).optional(),
     notes: z.string().trim().max(1000).optional(),
     sightings: z.array(sightingSchemaZod).max(50).default([]),
-});
+}).superRefine(async (data, ctx) => {
+    // If the id is malformed, the field check has already reported it,
+    // and findById would throw on a bad id, so stop here
+    if (!isValidId(data.site)) return;
+
+    const site = await SiteModel.findById(data.site);
+    if (!site) {
+        ctx.addIssue({
+            code: 'custom',
+            message: `Site with id ${data.site} does not exist`,
+            path: ['site'],
+        });
+        return;
+    }
+
+    if (data.maxDepth > site.maxDepth) {
+        ctx.addIssue({
+            code: 'custom',
+            message: `Dive depth (${data.maxDepth} m) is deeper than the site's maximum depth (${site.maxDepth} m)`,
+            path: ['maxDepth'],
+        });
+    }
+});;
 
 // PUT replaces the whole dive, so it needs the same fields as POST
 export const updateDiveSchemaZod = createDiveSchemaZod;
