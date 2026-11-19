@@ -2,6 +2,7 @@ import request from 'supertest';
 import { app } from '../../src/app';
 import { SiteModel, ISite } from '../../src/models/site_model';
 import { API_PREFIX } from '../../src/config/env';
+import { DiveModel } from '../../src/models/dive_model';
 
 // A valid site reused across tests
 const validSite: ISite = {
@@ -191,6 +192,28 @@ describe('PUT ${BASE}/sites/:id', () => {
         const res = await request(app).put(`${BASE}/sites/abc`).send(validSite);
 
         expect(res.status).toBe(400);
+    });
+
+    it('rejects lowering the depth below a logged dive (409)', async () => {
+        const site = await SiteModel.create(validSite); // 20 m
+        await DiveModel.create({ date: new Date('2026-05-01'), site: site._id, maxDepth: 16, duration: 40 });
+
+        const res = await request(app)
+            .put(`${BASE}/sites/${site._id}`)
+            .send({ ...validSite, maxDepth: 10 });
+
+        expect(res.status).toBe(409);
+    });
+
+    it('allows lowering the depth to match the deepest dive (200)', async () => {
+        const site = await SiteModel.create(validSite);
+        await DiveModel.create({ date: new Date('2026-05-01'), site: site._id, maxDepth: 16, duration: 40 });
+
+        const res = await request(app)
+            .put(`${BASE}/sites/${site._id}`)
+            .send({ ...validSite, maxDepth: 16 });
+
+        expect(res.status).toBe(200);
     });
 });
 
