@@ -17,7 +17,7 @@ const missingId = '665000000000000000000000';
 
 // The database connection is opened and closed in tests/setup.ts
 
-const BASE = API_PREFIX
+const BASE = API_PREFIX;
 
 beforeAll(async () => {
     // Make sure the unique index exists before the duplicate test runs

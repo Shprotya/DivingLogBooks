@@ -6,7 +6,7 @@ import { DiveModel } from '../../src/models/dive_model';
 import { API_PREFIX } from '../../src/config/env';
 
 // Same prefix as in app.ts and site.test.ts
-const BASE = API_PREFIX; // '/api/v1/logbook'
+const BASE = API_PREFIX;
 
 // A correctly formatted id that doesn't belong to anything
 const missingId = '665000000000000000000000';
@@ -49,7 +49,7 @@ afterAll(async () => {
     await SiteModel.deleteMany({});
 });
 
-describe('POST /dives', () => {
+describe(`POST /dives`, () => {
     it('creates a dive with valid data (201)', async () => {
         const res = await request(app).post(`${BASE}/dives`).send(validDive());
 
@@ -139,7 +139,7 @@ describe('POST /dives', () => {
     });
 });
 
-describe('GET /dives', () => {
+describe(`GET /dives`, () => {
     let otherSiteId: string;
 
     beforeEach(async () => {
@@ -270,7 +270,7 @@ describe('GET /dives', () => {
     });
 });
 
-describe('GET /dives/:id', () => {
+describe(`GET /dives/:id`, () => {
     it('returns a dive with full site details (200)', async () => {
         const dive = await DiveModel.create({ ...validDive(), site: new Types.ObjectId(siteId) });
         const res = await request(app).get(`${BASE}/dives/${dive._id}`);
@@ -293,7 +293,7 @@ describe('GET /dives/:id', () => {
     });
 });
 
-describe('GET /sites/:id/dives', () => {
+describe(`GET /sites/:id/dives`, () => {
     it('returns only the dives at that site (200)', async () => {
         const otherSite = await SiteModel.create({
             name: 'Other Site',
@@ -325,7 +325,7 @@ describe('GET /sites/:id/dives', () => {
     });
 });
 
-describe('PUT /dives/:id', () => {
+describe(`PUT /dives/:id`, () => {
     it('updates a dive that exists (200)', async () => {
         const dive = await DiveModel.create({ ...validDive(), site: new Types.ObjectId(siteId) });
         const res = await request(app)
@@ -368,7 +368,7 @@ describe('PUT /dives/:id', () => {
     });
 });
 
-describe('DELETE /dives/:id', () => {
+describe(`DELETE /dives/:id`, () => {
     it('deletes a dive that exists (204), and it is then gone', async () => {
         const dive = await DiveModel.create({ ...validDive(), site: new Types.ObjectId(siteId) });
 
@@ -392,7 +392,7 @@ describe('DELETE /dives/:id', () => {
     });
 });
 
-describe('Deleting a site that has dives', () => {
+describe(`Deleting a site that has dives`, () => {
     it('is blocked while dives are logged at the site (409)', async () => {
         await DiveModel.create({ ...validDive(), site: new Types.ObjectId(siteId) });
 
