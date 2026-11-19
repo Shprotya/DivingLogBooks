@@ -1,5 +1,6 @@
 import { Schema, model, Types } from 'mongoose';
 import { z } from 'zod';
+import { isValidId } from '../utils/request_helpers';
 
 /**
  * @openapi
@@ -105,7 +106,7 @@ export const createDiveSchemaZod = z.object({
     date: z.coerce
         .date()
         .refine((date) => date <= new Date(), { message: 'Dive date cannot be in the future' }),
-    site: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid site id'),
+    site: z.string().refine(isValidId, 'Invalid site id'),
     maxDepth: z.number().min(1).max(130),
     duration: z.number().int().min(1).max(300),
     waterTemp: z.number().min(-2).max(35).optional(),
