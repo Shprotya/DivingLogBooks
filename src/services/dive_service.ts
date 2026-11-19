@@ -56,7 +56,14 @@ export class DiveService {
         const from = toDate(query.from);
         const to = toDate(query.to);
         if (from) dateRange.$gte = from;
-        if (to) dateRange.$lte = to;
+        if (to) {
+            // A plain date like 2026-08-31 means midnight at the START of that day,
+            // so move it to the end of the day to include dives later that day
+            if (query.to && /^\d{4}-\d{2}-\d{2}$/.test(query.to)) {
+                to.setUTCHours(23, 59, 59, 999);
+            }
+            dateRange.$lte = to;
+        }
         if (Object.keys(dateRange).length > 0) filter.date = dateRange;
 
         // ?sighting=seal - any sighting whose name contains the text, ignoring case

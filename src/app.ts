@@ -4,16 +4,19 @@ import { swaggerSpec } from "./config/swagger";
 import swaggerUi from "swagger-ui-express";
 import siteRouter from "./routers/site_router";
 import diveRouter from "./routers/dive_router";
+import { API_PREFIX, CLIENT_ORIGINS } from './config/env';
+import cors from 'cors';
 
 export const app: Application = express();
 
 app.use(requestLogger);
+app.use(cors({ origin: CLIENT_ORIGINS }));
 app.use(express.json());
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-app.use("/logbook/sites", siteRouter);
-app.use("/logbook/dives", diveRouter);
+app.use(`${API_PREFIX}/sites`, siteRouter);
+app.use(`${API_PREFIX}/dives`, diveRouter);
 
 app.get("/ping", (_req: Request, res: Response) => {
     res.json({ message: "Dive logbook API is running" });

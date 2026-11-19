@@ -1,22 +1,8 @@
 import { Request, Response } from 'express';
-import { DiveService, DiveInput } from '../services/dive_service';
+import { DiveService } from '../services/dive_service';
 import { isValidId, asString } from '../utils/request_helpers';
 
 const diveService = new DiveService();
-
-// Rules Zod can't check because they need the database:
-// the site must exist, and the dive can't be deeper than the site.
-// Returns an error message, or null if everything is fine.
-const checkSiteRules = async (data: DiveInput): Promise<string | null> => {
-    const site = await diveService.findSite(data.site);
-    if (!site) {
-        return `Site with id ${data.site} does not exist`;
-    }
-    if (data.maxDepth > site.maxDepth) {
-        return `Dive depth (${data.maxDepth} m) is deeper than the site's maximum depth (${site.maxDepth} m)`;
-    }
-    return null;
-};
 
 export class DiveController {
     /**
@@ -220,11 +206,6 @@ export class DiveController {
      */
     createDive = async (req: Request, res: Response) => {
         try {
-            const siteError = await checkSiteRules(req.body);
-            if (siteError) {
-                res.status(400).json({ message: siteError });
-                return;
-            }
             const dive = await diveService.createDive(req.body);
             res.status(201).json(dive);
         } catch (error) {
@@ -270,11 +251,6 @@ export class DiveController {
             return;
         }
         try {
-            const siteError = await checkSiteRules(req.body);
-            if (siteError) {
-                res.status(400).json({ message: siteError });
-                return;
-            }
             const dive = await diveService.updateDive(id, req.body);
             if (!dive) {
                 res.status(404).json({ message: `Dive with id ${id} not found` });

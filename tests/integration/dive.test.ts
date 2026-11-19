@@ -3,9 +3,10 @@ import { Types } from 'mongoose';
 import { app } from '../../src/app';
 import { SiteModel } from '../../src/models/site_model';
 import { DiveModel } from '../../src/models/dive_model';
+import { API_PREFIX } from '../../src/config/env';
 
 // Same prefix as in app.ts and site.test.ts
-const BASE = '/logbook';
+const BASE = API_PREFIX;
 
 // A correctly formatted id that doesn't belong to anything
 const missingId = '665000000000000000000000';
@@ -48,7 +49,7 @@ afterAll(async () => {
     await SiteModel.deleteMany({});
 });
 
-describe('POST /dives', () => {
+describe(`POST /dives`, () => {
     it('creates a dive with valid data (201)', async () => {
         const res = await request(app).post(`${BASE}/dives`).send(validDive());
 
@@ -127,18 +128,20 @@ describe('POST /dives', () => {
         const res = await request(app).post(`${BASE}/dives`).send({ ...validDive(), site: missingId });
 
         expect(res.status).toBe(400);
-        expect(res.body.message).toContain('does not exist');
+        expect(res.body.errors[0].path).toEqual(['site']);
+        expect(res.body.errors[0].message).toContain('does not exist');
     });
 
     it('rejects a dive deeper than the site (400)', async () => {
         const res = await request(app).post(`${BASE}/dives`).send({ ...validDive(), maxDepth: 30 });
 
         expect(res.status).toBe(400);
-        expect(res.body.message).toContain('deeper');
+        expect(res.body.errors[0].path).toEqual(['maxDepth']);
+        expect(res.body.errors[0].message).toContain('deeper');
     });
 });
 
-describe('GET /dives', () => {
+describe(`GET /dives`, () => {
     let otherSiteId: string;
 
     beforeEach(async () => {
@@ -267,9 +270,17 @@ describe('GET /dives', () => {
 
         expect(res.status).toBe(400);
     });
+
+    it('includes dives later in the day on the "to" date', async () => {
+        await DiveModel.create({ date: new Date('2026-04-12T15:00:00Z'), site: siteId, maxDepth: 10, duration: 30 });
+
+        const res = await request(app).get(`${BASE}/dives?from=2026-04-12&to=2026-04-12`);
+
+        expect(res.body).toHaveLength(2);
+    });
 });
 
-describe('GET /dives/:id', () => {
+describe(`GET /dives/:id`, () => {
     it('returns a dive with full site details (200)', async () => {
         const dive = await DiveModel.create({ ...validDive(), site: new Types.ObjectId(siteId) });
         const res = await request(app).get(`${BASE}/dives/${dive._id}`);
@@ -292,7 +303,7 @@ describe('GET /dives/:id', () => {
     });
 });
 
-describe('GET /sites/:id/dives', () => {
+describe(`GET /sites/:id/dives`, () => {
     it('returns only the dives at that site (200)', async () => {
         const otherSite = await SiteModel.create({
             name: 'Other Site',
@@ -324,7 +335,7 @@ describe('GET /sites/:id/dives', () => {
     });
 });
 
-describe('PUT /dives/:id', () => {
+describe(`PUT /dives/:id`, () => {
     it('updates a dive that exists (200)', async () => {
         const dive = await DiveModel.create({ ...validDive(), site: new Types.ObjectId(siteId) });
         const res = await request(app)
@@ -365,9 +376,17 @@ describe('PUT /dives/:id', () => {
 
         expect(res.status).toBe(400);
     });
+
+    it('returns 404 for a missing dive even when the body is invalid', async () => {
+        const res = await request(app)
+            .put(`${BASE}/dives/${missingId}`)
+            .send({ ...validDive(), site: missingId, duration: 500 });
+
+        expect(res.status).toBe(404);
+    });
 });
 
-describe('DELETE /dives/:id', () => {
+describe(`DELETE /dives/:id`, () => {
     it('deletes a dive that exists (204), and it is then gone', async () => {
         const dive = await DiveModel.create({ ...validDive(), site: new Types.ObjectId(siteId) });
 
@@ -391,7 +410,7 @@ describe('DELETE /dives/:id', () => {
     });
 });
 
-describe('Deleting a site that has dives', () => {
+describe(`Deleting a site that has dives`, () => {
     it('is blocked while dives are logged at the site (409)', async () => {
         await DiveModel.create({ ...validDive(), site: new Types.ObjectId(siteId) });
 

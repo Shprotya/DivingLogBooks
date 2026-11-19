@@ -1,6 +1,8 @@
 import request from 'supertest';
 import { app } from '../../src/app';
 import { SiteModel, ISite } from '../../src/models/site_model';
+import { API_PREFIX } from '../../src/config/env';
+import { DiveModel } from '../../src/models/dive_model';
 
 // A valid site reused across tests
 const validSite: ISite = {
@@ -16,23 +18,27 @@ const missingId = '665000000000000000000000';
 
 // The database connection is opened and closed in tests/setup.ts
 
+const BASE = API_PREFIX;
+
 beforeAll(async () => {
     // Make sure the unique index exists before the duplicate test runs
     await SiteModel.init();
 });
 
 beforeEach(async () => {
-    // Every test starts with an empty sites collection
+    // Every test starts with no dives and no sites
+    await DiveModel.deleteMany({});
     await SiteModel.deleteMany({});
 });
 
 afterAll(async () => {
+    await DiveModel.deleteMany({});
     await SiteModel.deleteMany({});
 });
 
-describe('POST /logbook/sites', () => {
+describe(`POST ${BASE}/sites`, () => {
     it('creates a site with valid data (201)', async () => {
-        const res = await request(app).post('/logbook/sites').send(validSite);
+        const res = await request(app).post(`${BASE}/sites`).send(validSite);
 
         expect(res.status).toBe(201);
         expect(res.body._id).toBeDefined();
@@ -42,7 +48,7 @@ describe('POST /logbook/sites', () => {
 
     it('trims spaces from the name', async () => {
         const res = await request(app)
-            .post('/logbook/sites')
+            .post(`${BASE}/sites`)
             .send({ ...validSite, name: '   Spacey Reef   ' });
 
         expect(res.status).toBe(201);
@@ -50,39 +56,39 @@ describe('POST /logbook/sites', () => {
     });
 
     it('rejects a site with missing fields (400)', async () => {
-        const res = await request(app).post('/logbook/sites').send({ name: 'Incomplete' });
+        const res = await request(app).post(`${BASE}/sites`).send({ name: 'Incomplete' });
 
         expect(res.status).toBe(400);
     });
 
     it('rejects a depth over 130 m (400)', async () => {
-        const res = await request(app).post('/logbook/sites').send({ ...validSite, maxDepth: 200 });
+        const res = await request(app).post(`${BASE}/sites`).send({ ...validSite, maxDepth: 200 });
 
         expect(res.status).toBe(400);
     });
 
     it('rejects an invalid site type (400)', async () => {
-        const res = await request(app).post('/logbook/sites').send({ ...validSite, siteType: 'beach' });
+        const res = await request(app).post(`${BASE}/sites`).send({ ...validSite, siteType: 'beach' });
 
         expect(res.status).toBe(400);
     });
 
     it('rejects a duplicate name in the same country (409)', async () => {
-        await request(app).post('/logbook/sites').send(validSite);
-        const res = await request(app).post('/logbook/sites').send(validSite);
+        await request(app).post(`${BASE}/sites`).send(validSite);
+        const res = await request(app).post(`${BASE}/sites`).send(validSite);
 
         expect(res.status).toBe(409);
     });
 
     it('allows the same name in a different country (201)', async () => {
-        await request(app).post('/logbook/sites').send(validSite);
-        const res = await request(app).post('/logbook/sites').send({ ...validSite, country: 'Malta' });
+        await request(app).post(`${BASE}/sites`).send(validSite);
+        const res = await request(app).post(`${BASE}/sites`).send({ ...validSite, country: 'Malta' });
 
         expect(res.status).toBe(201);
     });
 });
 
-describe('GET /logbook/sites', () => {
+describe(`GET ${BASE}/sites`, () => {
     beforeEach(async () => {
         await SiteModel.create([
             { name: 'Shallow Reef', country: 'Ireland', maxDepth: 10, siteType: 'reef', difficulty: 'beginner' },
@@ -92,14 +98,14 @@ describe('GET /logbook/sites', () => {
     });
 
     it('returns all sites (200)', async () => {
-        const res = await request(app).get('/logbook/sites');
+        const res = await request(app).get(`${BASE}/sites`);
 
         expect(res.status).toBe(200);
         expect(res.body).toHaveLength(3);
     });
 
     it('filters by site type', async () => {
-        const res = await request(app).get('/logbook/sites?siteType=wreck');
+        const res = await request(app).get(`${BASE}/sites?siteType=wreck`);
 
         expect(res.status).toBe(200);
         expect(res.body).toHaveLength(1);
@@ -107,61 +113,61 @@ describe('GET /logbook/sites', () => {
     });
 
     it('filters by country, ignoring case', async () => {
-        const res = await request(app).get('/logbook/sites?country=IRELAND');
+        const res = await request(app).get(`${BASE}/sites?country=IRELAND`);
 
         expect(res.status).toBe(200);
         expect(res.body).toHaveLength(2);
     });
 
     it('combines filters', async () => {
-        const res = await request(app).get('/logbook/sites?country=ireland&difficulty=advanced');
+        const res = await request(app).get(`${BASE}/sites?country=ireland&difficulty=advanced`);
 
         expect(res.body).toHaveLength(1);
         expect(res.body[0].name).toBe('Deep Wall');
     });
 
     it('sorts by depth, deepest first', async () => {
-        const res = await request(app).get('/logbook/sites?sort=-maxDepth');
+        const res = await request(app).get(`${BASE}/sites?sort=-maxDepth`);
 
         const depths = res.body.map((site: ISite) => site.maxDepth);
         expect(depths).toEqual([45, 30, 10]);
     });
 
     it('treats regex characters in country as plain text', async () => {
-        const res = await request(app).get('/logbook/sites?country=.*');
+        const res = await request(app).get(`${BASE}/sites?country=.*`);
 
         expect(res.status).toBe(200);
         expect(res.body).toHaveLength(0);
     });
 });
 
-describe('GET /logbook/sites/:id', () => {
+describe(`GET ${BASE}/sites/:id`, () => {
     it('returns a site that exists (200)', async () => {
         const site = await SiteModel.create(validSite);
-        const res = await request(app).get(`/logbook/sites/${site._id}`);
+        const res = await request(app).get(`${BASE}/sites/${site._id}`);
 
         expect(res.status).toBe(200);
         expect(res.body.name).toBe('Test Reef');
     });
 
     it('returns 404 for a site that does not exist', async () => {
-        const res = await request(app).get(`/logbook/sites/${missingId}`);
+        const res = await request(app).get(`${BASE}/sites/${missingId}`);
 
         expect(res.status).toBe(404);
     });
 
     it('returns 400 for an invalid id format', async () => {
-        const res = await request(app).get('/logbook/sites/abc');
+        const res = await request(app).get(`${BASE}/sites/abc`);
 
         expect(res.status).toBe(400);
     });
 });
 
-describe('PUT /logbook/sites/:id', () => {
+describe(`PUT ${BASE}/sites/:id`, () => {
     it('updates a site that exists (200)', async () => {
         const site = await SiteModel.create(validSite);
         const res = await request(app)
-            .put(`/logbook/sites/${site._id}`)
+            .put(`${BASE}/sites/${site._id}`)
             .send({ ...validSite, maxDepth: 25, difficulty: 'intermediate' });
 
         expect(res.status).toBe(200);
@@ -170,7 +176,7 @@ describe('PUT /logbook/sites/:id', () => {
     });
 
     it('returns 404 when the site does not exist', async () => {
-        const res = await request(app).put(`/logbook/sites/${missingId}`).send(validSite);
+        const res = await request(app).put(`${BASE}/sites/${missingId}`).send(validSite);
 
         expect(res.status).toBe(404);
     });
@@ -178,38 +184,60 @@ describe('PUT /logbook/sites/:id', () => {
     it('returns 400 when the data is invalid', async () => {
         const site = await SiteModel.create(validSite);
         const res = await request(app)
-            .put(`/logbook/sites/${site._id}`)
+            .put(`${BASE}/sites/${site._id}`)
             .send({ ...validSite, maxDepth: -5 });
 
         expect(res.status).toBe(400);
     });
 
     it('returns 400 for an invalid id format', async () => {
-        const res = await request(app).put('/logbook/sites/abc').send(validSite);
+        const res = await request(app).put(`${BASE}/sites/abc`).send(validSite);
 
         expect(res.status).toBe(400);
     });
+
+    it('rejects lowering the depth below a logged dive (409)', async () => {
+        const site = await SiteModel.create(validSite); // 20 m
+        await DiveModel.create({ date: new Date('2026-05-01'), site: site._id, maxDepth: 16, duration: 40 });
+
+        const res = await request(app)
+            .put(`${BASE}/sites/${site._id}`)
+            .send({ ...validSite, maxDepth: 10 });
+
+        expect(res.status).toBe(409);
+    });
+
+    it('allows lowering the depth to match the deepest dive (200)', async () => {
+        const site = await SiteModel.create(validSite);
+        await DiveModel.create({ date: new Date('2026-05-01'), site: site._id, maxDepth: 16, duration: 40 });
+
+        const res = await request(app)
+            .put(`${BASE}/sites/${site._id}`)
+            .send({ ...validSite, maxDepth: 16 });
+
+        expect(res.status).toBe(200);
+    });
 });
 
-describe('DELETE /logbook/sites/:id', () => {
+describe(`DELETE ${BASE}/sites/:id`, () => {
     it('deletes a site that exists (204), and it is then gone', async () => {
         const site = await SiteModel.create(validSite);
 
-        const res = await request(app).delete(`/logbook/sites/${site._id}`);
+        const res = await request(app).delete(`${BASE}/sites/${site._id}`);
         expect(res.status).toBe(204);
 
-        const check = await request(app).get(`/logbook/sites/${site._id}`);
+        const check = await request(app).get(`${BASE}/sites/${site._id}`);
         expect(check.status).toBe(404);
     });
 
     it('returns 404 when the site does not exist', async () => {
-        const res = await request(app).delete(`/logbook/sites/${missingId}`);
+        const res = await request(app).delete(`${BASE}/sites/${missingId}`);
 
         expect(res.status).toBe(404);
     });
 
     it('returns 400 for an invalid id format', async () => {
-        const res = await request(app).delete('/logbook/sites/abc');
+        const res = await request(app).delete(`${BASE}/sites/abc`);
 
         expect(res.status).toBe(400);
     });

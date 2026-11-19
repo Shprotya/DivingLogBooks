@@ -1,4 +1,5 @@
 import swaggerJSDoc from 'swagger-jsdoc';
+import { API_PREFIX } from './env';
 
 const options: swaggerJSDoc.Options = {
     definition: {
@@ -10,7 +11,7 @@ const options: swaggerJSDoc.Options = {
         },
         servers: [
             {
-                url: "/logbook",
+                url: API_PREFIX,
             },
         ],
     },

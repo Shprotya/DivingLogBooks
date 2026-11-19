@@ -57,4 +57,9 @@ export class SiteService {
     async hasDives(id: string) {
         return (await DiveModel.exists({ site: id })) !== null;
     }
+
+    // The deepest dive logged at this site, or null if there are none
+    async getDeepestDive(id: string) {
+        return DiveModel.findOne({ site: id }).sort({ maxDepth: -1 });
+    }
 }

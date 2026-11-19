@@ -22,3 +22,7 @@ export const env = {
     nodeEnv: result.data.NODE_ENV,
     mongoURI: result.data.MONGODB_URI,
 };
+
+export const API_PREFIX = '/api/v1/logbook';
+// Front-end addresses allowed to call this API from a browser
+export const CLIENT_ORIGINS = ['http://localhost:4200'];

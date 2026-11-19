@@ -175,7 +175,7 @@ export class SiteController {
      *       404:
      *         description: Site not found
      *       409:
-     *         description: A site with this name already exists in this country
+     *         description: A site with this name already exists in this country, or the new max depth is shallower than a dive logged here
      */
     updateSite = async (req: Request<{ id: string }>, res: Response) => {
         const { id } = req.params;
@@ -184,6 +184,14 @@ export class SiteController {
             return;
         }
         try {
+            // A site can't become shallower than a dive already logged there
+            const deepest = await siteService.getDeepestDive(id);
+            if (deepest && req.body.maxDepth < deepest.maxDepth) {
+                res.status(409).json({
+                    message: `A dive at this site went to ${deepest.maxDepth} m, so its maximum depth can't be lower than that`,
+                });
+                return;
+            }
             const site = await siteService.updateSite(id, req.body);
             if (!site) {
                 res.status(404).json({ message: `Site with id ${id} not found` });
