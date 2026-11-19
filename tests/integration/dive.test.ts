@@ -270,6 +270,14 @@ describe(`GET /dives`, () => {
 
         expect(res.status).toBe(400);
     });
+
+    it('includes dives later in the day on the "to" date', async () => {
+        await DiveModel.create({ date: new Date('2026-04-12T15:00:00Z'), site: siteId, maxDepth: 10, duration: 30 });
+
+        const res = await request(app).get(`${BASE}/dives?from=2026-04-12&to=2026-04-12`);
+
+        expect(res.body).toHaveLength(2);
+    });
 });
 
 describe(`GET /dives/:id`, () => {
@@ -370,12 +378,12 @@ describe(`PUT /dives/:id`, () => {
     });
 
     it('returns 404 for a missing dive even when the body is invalid', async () => {
-    const res = await request(app)
-        .put(`${BASE}/dives/${missingId}`)
-        .send({ ...validDive(), site: missingId, duration: 500 });
+        const res = await request(app)
+            .put(`${BASE}/dives/${missingId}`)
+            .send({ ...validDive(), site: missingId, duration: 500 });
 
-    expect(res.status).toBe(404);
-});
+        expect(res.status).toBe(404);
+    });
 });
 
 describe(`DELETE /dives/:id`, () => {
