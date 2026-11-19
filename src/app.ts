@@ -10,7 +10,7 @@ import cors from 'cors';
 export const app: Application = express();
 
 app.use(requestLogger);
-app.use(cors({ origin: 'http://localhost:4200' }));
+app.use(cors({ origin:[ 'http://localhost:4200' ] }));
 app.use(express.json());
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));

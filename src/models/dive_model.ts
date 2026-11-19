@@ -137,7 +137,7 @@ export const createDiveSchemaZod = z.object({
             path: ['maxDepth'],
         });
     }
-});;
+});
 
 // PUT replaces the whole dive, so it needs the same fields as POST
 export const updateDiveSchemaZod = createDiveSchemaZod;

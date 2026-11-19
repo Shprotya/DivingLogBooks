@@ -26,15 +26,17 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
-    // Every test starts with an empty sites collection
+    // Every test starts with no dives and no sites
+    await DiveModel.deleteMany({});
     await SiteModel.deleteMany({});
 });
 
 afterAll(async () => {
+    await DiveModel.deleteMany({});
     await SiteModel.deleteMany({});
 });
 
-describe('POST ${BASE}/sites', () => {
+describe(`POST ${BASE}/sites`, () => {
     it('creates a site with valid data (201)', async () => {
         const res = await request(app).post(`${BASE}/sites`).send(validSite);
 
@@ -86,7 +88,7 @@ describe('POST ${BASE}/sites', () => {
     });
 });
 
-describe('GET ${BASE}/sites', () => {
+describe(`GET ${BASE}/sites`, () => {
     beforeEach(async () => {
         await SiteModel.create([
             { name: 'Shallow Reef', country: 'Ireland', maxDepth: 10, siteType: 'reef', difficulty: 'beginner' },
@@ -139,7 +141,7 @@ describe('GET ${BASE}/sites', () => {
     });
 });
 
-describe('GET ${BASE}/sites/:id', () => {
+describe(`GET ${BASE}/sites/:id`, () => {
     it('returns a site that exists (200)', async () => {
         const site = await SiteModel.create(validSite);
         const res = await request(app).get(`${BASE}/sites/${site._id}`);
@@ -161,7 +163,7 @@ describe('GET ${BASE}/sites/:id', () => {
     });
 });
 
-describe('PUT ${BASE}/sites/:id', () => {
+describe(`PUT ${BASE}/sites/:id`, () => {
     it('updates a site that exists (200)', async () => {
         const site = await SiteModel.create(validSite);
         const res = await request(app)
@@ -217,7 +219,7 @@ describe('PUT ${BASE}/sites/:id', () => {
     });
 });
 
-describe('DELETE ${BASE}/sites/:id', () => {
+describe(`DELETE ${BASE}/sites/:id`, () => {
     it('deletes a site that exists (204), and it is then gone', async () => {
         const site = await SiteModel.create(validSite);
 
