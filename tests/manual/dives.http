@@ -1,4 +1,4 @@
-@baseUrl = http://localhost:5000/logbook
+@baseUrl = http://localhost:5000/api/v1/logbook
 @missingId = 665000000000000000000000
 
 ### SETUP - the site test dives are logged at

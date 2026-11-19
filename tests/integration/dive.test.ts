@@ -3,9 +3,10 @@ import { Types } from 'mongoose';
 import { app } from '../../src/app';
 import { SiteModel } from '../../src/models/site_model';
 import { DiveModel } from '../../src/models/dive_model';
+import { API_PREFIX } from '../../src/config/env';
 
 // Same prefix as in app.ts and site.test.ts
-const BASE = '/logbook';
+const BASE = API_PREFIX; // '/api/v1/logbook'
 
 // A correctly formatted id that doesn't belong to anything
 const missingId = '665000000000000000000000';
