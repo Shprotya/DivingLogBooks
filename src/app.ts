@@ -4,13 +4,13 @@ import { swaggerSpec } from "./config/swagger";
 import swaggerUi from "swagger-ui-express";
 import siteRouter from "./routers/site_router";
 import diveRouter from "./routers/dive_router";
-import { API_PREFIX } from './config/env';
+import { API_PREFIX, CLIENT_ORIGINS } from './config/env';
 import cors from 'cors';
 
 export const app: Application = express();
 
 app.use(requestLogger);
-app.use(cors({ origin:[ 'http://localhost:4200' ] }));
+app.use(cors({ origin: CLIENT_ORIGINS }));
 app.use(express.json());
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
