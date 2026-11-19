@@ -128,14 +128,16 @@ describe(`POST /dives`, () => {
         const res = await request(app).post(`${BASE}/dives`).send({ ...validDive(), site: missingId });
 
         expect(res.status).toBe(400);
-        expect(res.body.message).toContain('does not exist');
+        expect(res.body.errors[0].path).toEqual(['site']);
+        expect(res.body.errors[0].message).toContain('does not exist');
     });
 
     it('rejects a dive deeper than the site (400)', async () => {
         const res = await request(app).post(`${BASE}/dives`).send({ ...validDive(), maxDepth: 30 });
 
         expect(res.status).toBe(400);
-        expect(res.body.message).toContain('deeper');
+        expect(res.body.errors[0].path).toEqual(['maxDepth']);
+        expect(res.body.errors[0].message).toContain('deeper');
     });
 });
 
