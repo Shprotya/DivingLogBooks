@@ -368,6 +368,14 @@ describe(`PUT /dives/:id`, () => {
 
         expect(res.status).toBe(400);
     });
+
+    it('returns 404 for a missing dive even when the body is invalid', async () => {
+    const res = await request(app)
+        .put(`${BASE}/dives/${missingId}`)
+        .send({ ...validDive(), site: missingId, duration: 500 });
+
+    expect(res.status).toBe(404);
+});
 });
 
 describe(`DELETE /dives/:id`, () => {
