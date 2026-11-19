@@ -1,0 +1,422 @@
+@baseUrl = http://localhost:5000/logbook
+@missingId = 665000000000000000000000
+
+### SETUP - the site test dives are logged at
+### Dalkey Island (max depth 25 m)
+@siteId = 6aca99d3625ea0ef88f87fb4
+
+@dalkeyId = 6aca99d3625ea0ef88f87fb4
+@loughHyneId = 6aca9dd1625ea0ef88f87fb8
+@skelligId = 6aca9dd4625ea0ef88f87fb9
+@kilkeeId = 6aca9dd7625ea0ef88f87fba
+@umElFaroudId = 6aca9dd9625ea0ef88f87fbb
+@santaMariaId = 6aca9ddb625ea0ef88f87fbc
+@thistlegormId = 6aca9dde625ea0ef88f87fbd
+@rasMohammedId = 6aca9ddf625ea0ef88f87fbe
+
+
+
+### CREATE (POST)
+
+### POST - valid dive (201). Sighting names come back in lowercase, count defaults to 1.
+# @name createDive
+POST {{baseUrl}}/dives
+Content-Type: application/json
+
+{
+    "date": "2026-10-01T10:00:00Z",
+    "site": "{{siteId}}",
+    "maxDepth": 15,
+    "duration": 45,
+    "waterTemp": 12,
+    "visibility": 6,
+    "rating": 3,
+    "notes": "Test dive from dives.http",
+    "sightings": [
+        { "name": "Grey Seal", "count": 2 },
+        { "name": "OCTOPUS" }
+    ]
+}
+
+### CREATE DIVES (all depths are within each site's max depth)
+
+### Dalkey Island, April 2026
+POST {{baseUrl}}/dives
+Content-Type: application/json
+
+{
+    "date": "2026-04-12T11:00:00Z",
+    "site": "{{dalkeyId}}",
+    "maxDepth": 14,
+    "duration": 50,
+    "waterTemp": 10,
+    "visibility": 6,
+    "rating": 4,
+    "notes": "Cold but calm, seals came close at the safety stop",
+    "sightings": [
+        { "name": "Grey Seal", "count": 3 },
+        { "name": "Ballan Wrasse", "count": 2 }
+    ]
+}
+
+### Dalkey Island, July 2026
+POST {{baseUrl}}/dives
+Content-Type: application/json
+
+{
+    "date": "2026-07-19T14:30:00Z",
+    "site": "{{dalkeyId}}",
+    "maxDepth": 16,
+    "duration": 55,
+    "waterTemp": 15,
+    "visibility": 8,
+    "rating": 5,
+    "notes": "Best seal dive so far",
+    "sightings": [
+        { "name": "Grey Seal", "count": 5 },
+        { "name": "Compass Jellyfish" }
+    ]
+}
+
+### Kilkee Bay, June 2026
+POST {{baseUrl}}/dives
+Content-Type: application/json
+
+{
+    "date": "2026-06-08T10:00:00Z",
+    "site": "{{kilkeeId}}",
+    "maxDepth": 18,
+    "duration": 48,
+    "waterTemp": 13,
+    "visibility": 10,
+    "rating": 4,
+    "sightings": [
+        { "name": "Octopus" },
+        { "name": "Dogfish", "count": 2 }
+    ]
+}
+
+### Kilkee Bay, September 2026 - only the required fields
+POST {{baseUrl}}/dives
+Content-Type: application/json
+
+{
+    "date": "2026-09-20T09:00:00Z",
+    "site": "{{kilkeeId}}",
+    "maxDepth": 12,
+    "duration": 30
+}
+
+### Lough Hyne, August 2026
+POST {{baseUrl}}/dives
+Content-Type: application/json
+
+{
+    "date": "2026-08-23T19:00:00Z",
+    "site": "{{loughHyneId}}",
+    "maxDepth": 32,
+    "duration": 40,
+    "waterTemp": 14,
+    "visibility": 7,
+    "rating": 5,
+    "notes": "Night dive on the wall",
+    "sightings": [
+        { "name": "Nudibranch", "count": 4 },
+        { "name": "Conger Eel" }
+    ]
+}
+
+### Skellig Michael, August 2026
+POST {{baseUrl}}/dives
+Content-Type: application/json
+
+{
+    "date": "2026-08-30T12:00:00Z",
+    "site": "{{skelligId}}",
+    "maxDepth": 38,
+    "duration": 35,
+    "waterTemp": 13,
+    "visibility": 15,
+    "rating": 5,
+    "sightings": [
+        { "name": "Grey Seal", "count": 2 },
+        { "name": "Jewel Anemone", "count": 30 }
+    ]
+}
+
+### Um El Faroud, September 2025
+POST {{baseUrl}}/dives
+Content-Type: application/json
+
+{
+    "date": "2025-09-14T09:30:00Z",
+    "site": "{{umElFaroudId}}",
+    "maxDepth": 33,
+    "duration": 38,
+    "waterTemp": 24,
+    "visibility": 25,
+    "rating": 5,
+    "sightings": [
+        { "name": "Barracuda", "count": 12 },
+        { "name": "Moray Eel" }
+    ]
+}
+
+### Santa Maria Caves, September 2025
+POST {{baseUrl}}/dives
+Content-Type: application/json
+
+{
+    "date": "2025-09-16T15:00:00Z",
+    "site": "{{santaMariaId}}",
+    "maxDepth": 10,
+    "duration": 55,
+    "waterTemp": 25,
+    "visibility": 30,
+    "rating": 4,
+    "sightings": [
+        { "name": "Octopus", "count": 2 },
+        { "name": "Cardinalfish", "count": 50 }
+    ]
+}
+
+### SS Thistlegorm, November 2025
+POST {{baseUrl}}/dives
+Content-Type: application/json
+
+{
+    "date": "2025-11-02T08:00:00Z",
+    "site": "{{thistlegormId}}",
+    "maxDepth": 29,
+    "duration": 42,
+    "waterTemp": 26,
+    "visibility": 20,
+    "rating": 5,
+    "notes": "Motorbikes in the cargo hold",
+    "sightings": [
+        { "name": "Turtle" },
+        { "name": "Lionfish", "count": 3 }
+    ]
+}
+
+### Ras Mohammed, November 2025
+POST {{baseUrl}}/dives
+Content-Type: application/json
+
+{
+    "date": "2025-11-03T10:00:00Z",
+    "site": "{{rasMohammedId}}",
+    "maxDepth": 25,
+    "duration": 50,
+    "waterTemp": 27,
+    "visibility": 30,
+    "rating": 5,
+    "sightings": [
+        { "name": "Turtle", "count": 2 },
+        { "name": "Napoleon Wrasse" },
+        { "name": "Barracuda", "count": 40 }
+    ]
+}
+
+
+###
+@diveId = {{createDive.response.body._id}}
+
+### POST - fails validation: missing required fields (400)
+POST {{baseUrl}}/dives
+Content-Type: application/json
+
+{
+    "notes": "No date, site, depth or duration"
+}
+
+### POST - fails validation: date in the future (400)
+POST {{baseUrl}}/dives
+Content-Type: application/json
+
+{
+    "date": "2030-01-01T10:00:00Z",
+    "site": "{{siteId}}",
+    "maxDepth": 10,
+    "duration": 30
+}
+
+### POST - fails validation: rating out of range and negative duration (400)
+POST {{baseUrl}}/dives
+Content-Type: application/json
+
+{
+    "date": "2026-05-01T10:00:00Z",
+    "site": "{{siteId}}",
+    "maxDepth": 10,
+    "duration": -5,
+    "rating": 6
+}
+
+### POST - fails validation: sighting with an empty name (400)
+POST {{baseUrl}}/dives
+Content-Type: application/json
+
+{
+    "date": "2026-05-01T10:00:00Z",
+    "site": "{{siteId}}",
+    "maxDepth": 10,
+    "duration": 30,
+    "sightings": [{ "name": "" }]
+}
+
+### POST - fails validation: site id has the wrong format (400)
+POST {{baseUrl}}/dives
+Content-Type: application/json
+
+{
+    "date": "2026-05-01T10:00:00Z",
+    "site": "abc",
+    "maxDepth": 10,
+    "duration": 30
+}
+
+### POST - site does not exist (400)
+POST {{baseUrl}}/dives
+Content-Type: application/json
+
+{
+    "date": "2026-05-01T10:00:00Z",
+    "site": "{{missingId}}",
+    "maxDepth": 10,
+    "duration": 30
+}
+
+### POST - dive deeper than the site's max depth, 30 m at a 25 m site (400)
+POST {{baseUrl}}/dives
+Content-Type: application/json
+
+{
+    "date": "2026-05-01T10:00:00Z",
+    "site": "{{siteId}}",
+    "maxDepth": 30,
+    "duration": 30
+}
+
+### READ (GET)
+
+### GET - all dives, newest first, each with site name and country (200)
+GET {{baseUrl}}/dives
+
+### GET - filter by sighting, partial and case-insensitive: finds "grey seal" (200)
+GET {{baseUrl}}/dives?sighting=SEAL
+
+### GET - filter by sighting: octopus (200)
+GET {{baseUrl}}/dives?sighting=octopus
+
+### GET - dives 30 m or deeper (200)
+GET {{baseUrl}}/dives?minDepth=30
+
+### GET - depth range 10 to 20 m (200)
+GET {{baseUrl}}/dives?minDepth=10&maxDepth=20
+
+### GET - date range: summer 2026 (200)
+GET {{baseUrl}}/dives?from=2026-06-01&to=2026-08-31
+
+### GET - only dives rated 5 (200)
+GET {{baseUrl}}/dives?minRating=5
+
+### GET - dives at one site (200)
+GET {{baseUrl}}/dives?site={{siteId}}
+
+### GET - combined: seal dives rated 5 (200)
+GET {{baseUrl}}/dives?sighting=seal&minRating=5
+
+### GET - sort by depth, deepest first (200)
+GET {{baseUrl}}/dives?sort=-maxDepth
+
+### GET - sort by duration, shortest first (200)
+GET {{baseUrl}}/dives?sort=duration
+
+### GET - invalid site id in the filter (400)
+GET {{baseUrl}}/dives?site=abc
+
+### GET - one dive that exists, with full site details (200)
+GET {{baseUrl}}/dives/{{diveId}}
+
+### GET - one dive that doesn't exist (404)
+GET {{baseUrl}}/dives/{{missingId}}
+
+### GET - invalid id format (400)
+GET {{baseUrl}}/dives/abc
+
+### GET - all dives at a site (200)
+GET {{baseUrl}}/sites/{{siteId}}/dives
+
+### GET - dives at a site that doesn't exist (404)
+GET {{baseUrl}}/sites/{{missingId}}/dives
+
+### RELATIONSHIP RULE
+
+### DELETE - a site that still has dives logged at it (409)
+DELETE {{baseUrl}}/sites/{{siteId}}
+
+### UPDATE (PUT)
+
+### PUT - valid update (200)
+PUT {{baseUrl}}/dives/{{diveId}}
+Content-Type: application/json
+
+{
+    "date": "2026-10-01T10:00:00Z",
+    "site": "{{siteId}}",
+    "maxDepth": 17,
+    "duration": 50,
+    "waterTemp": 12,
+    "visibility": 6,
+    "rating": 4,
+    "notes": "Updated: actually saw a third seal",
+    "sightings": [
+        { "name": "Grey Seal", "count": 3 },
+        { "name": "Octopus" }
+    ]
+}
+
+### PUT - dive not found (404)
+PUT {{baseUrl}}/dives/{{missingId}}
+Content-Type: application/json
+
+{
+    "date": "2026-10-01T10:00:00Z",
+    "site": "{{siteId}}",
+    "maxDepth": 10,
+    "duration": 30
+}
+
+### PUT - fails validation: duration too long (400)
+PUT {{baseUrl}}/dives/{{diveId}}
+Content-Type: application/json
+
+{
+    "date": "2026-10-01T10:00:00Z",
+    "site": "{{siteId}}",
+    "maxDepth": 10,
+    "duration": 500
+}
+
+### PUT - deeper than the site allows (400)
+PUT {{baseUrl}}/dives/{{diveId}}
+Content-Type: application/json
+
+{
+    "date": "2026-10-01T10:00:00Z",
+    "site": "{{siteId}}",
+    "maxDepth": 30,
+    "duration": 40
+}
+
+### DELETE
+
+### DELETE - dive that exists (204)
+DELETE {{baseUrl}}/dives/{{diveId}}
+
+### DELETE - same dive again, now gone (404)
+DELETE {{baseUrl}}/dives/{{diveId}}
+
+### DELETE - invalid id format (400)
+DELETE {{baseUrl}}/dives/abc
